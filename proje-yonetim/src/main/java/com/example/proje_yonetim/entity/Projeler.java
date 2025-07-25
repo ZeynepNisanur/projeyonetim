@@ -2,6 +2,8 @@ package com.example.proje_yonetim.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class Projeler {
@@ -79,6 +81,14 @@ public class Projeler {
 
     public void setDurum(Status durum) {
         this.durum = durum;
+    }
+
+    @ManyToMany
+    @JoinTable(name = "proje_calisanlar", joinColumns = @JoinColumn(name = "proje_id"), inverseJoinColumns = @JoinColumn(name = "calisan_id"))
+    private Set<Calisanlar> calisanlar = new HashSet<>();
+
+    public Set<Calisanlar> getCalisanlar() {
+        return calisanlar;
     }
 }
 

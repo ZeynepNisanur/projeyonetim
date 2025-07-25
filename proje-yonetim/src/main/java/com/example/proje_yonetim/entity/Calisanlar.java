@@ -1,5 +1,8 @@
 package com.example.proje_yonetim.entity;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import jakarta.persistence.*;
 
 //import jakarta.validation.constraints.Email;     // E-posta formatı için  @Email le kullanılır
@@ -69,4 +72,7 @@ public class Calisanlar {
     public void setPozisyon(String pozisyon) {
         this.pozisyon = pozisyon;
     }
+
+    @ManyToMany(mappedBy = "calisanlar")
+    private Set<Projeler> projeler = new HashSet<>();
 }
