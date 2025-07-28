@@ -57,6 +57,10 @@ public class Calisanlar {
         this.soyad = soyad;
     }
 
+    public String getAdSoyad() {
+        return ad + " " + soyad;
+    }
+
     public String getEposta() {
         return eposta;
     }

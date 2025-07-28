@@ -13,7 +13,7 @@ import java.util.Optional;
 public class CalisanlarService {
 
     private final CalisanlarRepository calisanlarRepository; // final olarak tanımladım başka yerden değiştirilemez
-                                                             // constructor içinde atanabileceğini garantiye aldık.
+    // constructor içinde atanabileceğini garantiye aldık.
 
     public CalisanlarService(CalisanlarRepository calisanlarRepository) {
         this.calisanlarRepository = calisanlarRepository;
