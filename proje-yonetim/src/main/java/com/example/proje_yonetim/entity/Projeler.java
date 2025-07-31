@@ -20,13 +20,13 @@ public class Projeler {
     private LocalDate bitisTarihi;
 
     @Enumerated(EnumType.STRING)
-    private Status durum;
+    private Durum durum;
 
     public Projeler() {
     }
 
     public Projeler(Long id, String baslik, String aciklama, LocalDate baslangicTarihi, LocalDate bitisTarihi,
-            Status durum) {
+            Durum durum) {
         this.id = id;
         this.baslik = baslik;
         this.aciklama = aciklama;
@@ -75,11 +75,11 @@ public class Projeler {
         this.bitisTarihi = bitisTarihi;
     }
 
-    public Status getDurum() {
+    public Durum getDurum() {
         return durum;
     }
 
-    public void setDurum(Status durum) {
+    public void setDurum(Durum durum) {
         this.durum = durum;
     }
 
@@ -90,12 +90,4 @@ public class Projeler {
     public Set<Calisanlar> getCalisanlar() {
         return calisanlar;
     }
-}
-
-enum Status {
-    YENI,
-    DEVAM_EDIYOR,
-    ARA_VERILDI,
-    TAMAMLANDI,
-    IPTAL_EDILDI
 }

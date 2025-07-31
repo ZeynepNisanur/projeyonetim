@@ -9,7 +9,7 @@ import com.example.proje_yonetim.repository.CalisanlarRepository;
 import com.example.proje_yonetim.repository.ProjelerRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
+import com.example.proje_yonetim.entity.Durum;
 //import jakarta.persistence.JoinColumn;
 //import jakarta.persistence.JoinTable;
 //import jakarta.persistence.ManyToMany;
@@ -35,7 +35,7 @@ public class ProjelerService {
         return projelerRepository.findAll();
     }
 
-    public List<Projeler> findAll(Projeler durum) {
+    public List<Projeler> findAll(Durum durum) {
         if (durum != null) {
             return projelerRepository.findByDurum(durum);
         }
@@ -103,5 +103,13 @@ public class ProjelerService {
 
         projeler.getCalisanlar().remove(calisanlar);
         projelerRepo.save(projeler);
+    }
+
+    public void projeDurumGuncelle(Long projeId, Durum yeniDurum) {
+        Projeler proje = projelerRepo.findById(projeId)
+                .orElseThrow(() -> new RuntimeException("Proje bulunamadı"));
+
+        proje.setDurum(yeniDurum);
+        projelerRepository.save(proje);
     }
 }
