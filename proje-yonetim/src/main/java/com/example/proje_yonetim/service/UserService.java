@@ -1,5 +1,6 @@
 package com.example.proje_yonetim.service;
 
+import java.util.Collections;
 import java.util.Set;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,16 @@ public class UserService {
         user.setUseradi(useradi);
         user.setSifre(passwordEncoder.encode(sifre)); // Şimdilik düz, sonra BCrypt ile değiştireceğiz.
         user.setRoles(Set.of(role));
+
+        userRepository.save(user);
+    }
+
+    public void registerUser(User user) {
+        user.setSifre(passwordEncoder.encode(user.getSifre()));
+
+        // Default rol ata (örnek: ROLE_USER)
+        Role role = roleRepository.findByName("ROLE_USER");
+        user.setRoles(Collections.singleton(role));
 
         userRepository.save(user);
     }
