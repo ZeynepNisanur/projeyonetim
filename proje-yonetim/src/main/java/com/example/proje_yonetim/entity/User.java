@@ -1,6 +1,7 @@
 package com.example.proje_yonetim.entity;
 
 import java.util.Set;
+
 import java.util.HashSet;
 import jakarta.persistence.*;
 
@@ -56,4 +57,6 @@ public class User {
         this.roles = roles;
     }
 
+    @Column(name = "refresh_token")
+    private String refreshToken;
 }

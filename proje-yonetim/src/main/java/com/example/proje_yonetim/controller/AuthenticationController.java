@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.proje_yonetim.dto.AuthRequest;
+import com.example.proje_yonetim.dto.AuthRequestDto;
 import com.example.proje_yonetim.dto.AuthResponse;
 import com.example.proje_yonetim.security.JwtUtil;
 
@@ -28,15 +28,15 @@ public class AuthenticationController {
     private UserDetailsService userDetailsService;
 
     @PostMapping("/authenticate")
-    public ResponseEntity<?> createAuthToken(@RequestBody AuthRequest authRequest) throws Exception {
+    public ResponseEntity<?> createAuthToken(@RequestBody AuthRequestDto authRequest) throws Exception {
         try {
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
+                    new UsernamePasswordAuthenticationToken(authRequest.getUseradi(), authRequest.getSifre()));
         } catch (BadCredentialsException e) {
             throw new Exception("Şifreniz veya kullanıcı adınız yanlış", e);
         }
 
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUsername());
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUseradi());
         final String jwt = jwtUtil.generateToken(userDetails);
 
         return ResponseEntity.ok(new AuthResponse(jwt));

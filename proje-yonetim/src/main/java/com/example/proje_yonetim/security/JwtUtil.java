@@ -15,6 +15,7 @@ import java.util.Map;
 public class JwtUtil {
     // 256 bitlik 32 karakterlik(olmak zorundaymış yoksam patlaarr O_O) gizli keyim!
     private final String SECRET = "senin-super-gizli-ve-en-az-256-bit-olmasi-gereken-secret-keyin";
+    private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
     private final long EXPIRATION_TIME = 1000 * 60 * 60 * 100; // 100 saat
 
     private Key getSigningKey() {
@@ -27,7 +28,7 @@ public class JwtUtil {
         return createToken(claims, userDetails.getUsername());
     }
 
-    public String extractUsername(String token) {
+    public String extractUseradi(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
@@ -37,7 +38,7 @@ public class JwtUtil {
     }
 
     public boolean validateToken(String token, String username) {
-        final String extractedUsername = extractUsername(token);
+        final String extractedUsername = extractUseradi(token);
         return extractedUsername.equals(username) && !isTokenExpired(token);
     }
 
@@ -60,4 +61,14 @@ public class JwtUtil {
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
+
+    public String generateRefreshToken(String username) {
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 100 * 24 * 60 * 60 * 1000)) // 100 gün
+                .signWith(key)
+                .compact();
+    }
+
 }

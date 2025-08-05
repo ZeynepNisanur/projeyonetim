@@ -37,7 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7); // "Bearer " yazısını atıyoruz
             try {
-                username = jwtUtil.extractUsername(token);
+                username = jwtUtil.extractUseradi(token);
             } catch (Exception e) {
                 System.out.println("Token geçersiz: " + e.getMessage());
             }
