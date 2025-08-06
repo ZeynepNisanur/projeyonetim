@@ -60,25 +60,4 @@ public class UserService {
         userRepository.save(user);
     }
 
-    /*
-     * @Service
-     * public class CustomUSerDEtailsSErvice implements UserDetailsService {
-     * 
-     * @Autowired
-     * private UserRepository userRepository;
-     * 
-     * @Override
-     * public UserDetails loadUserByUsername(String username) throws
-     * UsernameNotFoundException {
-     * User user = userRepository.findByUseradi(username);
-     * return new org.springframework.security.core.userdetails.User(
-     * user.getUseradi(),
-     * user.getSifre(),
-     * user.getRoles().stream().map(role -> new
-     * SimpleGrantedAuthority(role.getName()))
-     * .collect(Collectors.toList()));
-     * }
-     * }
-     */
-
 }

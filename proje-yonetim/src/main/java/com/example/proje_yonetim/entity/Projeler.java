@@ -12,11 +12,8 @@ public class Projeler {
     private Long id;
 
     private String baslik;
-
     private String aciklama;
-
     private LocalDate baslangicTarihi;
-
     private LocalDate bitisTarihi;
 
     @Enumerated(EnumType.STRING)

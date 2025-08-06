@@ -7,6 +7,7 @@ import com.example.proje_yonetim.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Collections;
 
@@ -19,6 +20,9 @@ public class DataInitializer {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @PostConstruct
     public void init() {
         // Rol oluşturma
@@ -29,7 +33,9 @@ public class DataInitializer {
         // Kullanıcı oluşturma
         User user = new User();
         user.setUseradi("nisa");
-        user.setSifre("1234"); // Şimdilik şifreyi düz metin (gerçek uygulamada şifrelenmelii!)
+        user.setSifre(passwordEncoder.encode("1234")); // Şimdilik şifreyi düz metin
+        // (gerçek uygulamada
+        // şifrelenmelii!) -1234-
         user.setEnabled(true);
         user.setRoles(Collections.singleton(adminRole));
         userRepository.save(user);
