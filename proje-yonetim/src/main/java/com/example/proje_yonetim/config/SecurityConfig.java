@@ -15,6 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.example.proje_yonetim.security.JwtAuthenticationFilter;
+//import com.example.proje_yonetim.service.CustomUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
@@ -26,6 +27,7 @@ public class SecurityConfig {
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, UserDetailsService userDetailsService) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.userDetailsService = userDetailsService;
+
     }
 
     @Bean

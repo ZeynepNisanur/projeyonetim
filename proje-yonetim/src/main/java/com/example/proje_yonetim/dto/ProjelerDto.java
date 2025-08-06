@@ -13,7 +13,7 @@ public class ProjelerDto {
         this.calisanlar = calisanlar;
     }
 
-    // Getters
+    // Getter
     public Long getId() {
         return id;
     }

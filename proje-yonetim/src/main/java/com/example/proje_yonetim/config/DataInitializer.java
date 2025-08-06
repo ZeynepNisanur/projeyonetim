@@ -28,7 +28,7 @@ public class DataInitializer {
 
         // Kullanıcı oluşturma
         User user = new User();
-        user.setUseradi("admin");
+        user.setUseradi("nisa");
         user.setSifre("1234"); // Şimdilik şifreyi düz metin (gerçek uygulamada şifrelenmelii!)
         user.setEnabled(true);
         user.setRoles(Collections.singleton(adminRole));

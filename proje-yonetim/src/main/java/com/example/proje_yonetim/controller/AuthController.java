@@ -47,7 +47,12 @@ public class AuthController {
             UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUseradi());
             String token = jwtUtil.generateToken(userDetails);
 
-            return ResponseEntity.ok(token);
+            // Refresh token üret
+            String refreshToken = refreshTokenService.createRefreshToken(userDetails.getUsername()).getToken();
+
+            // Tokenları birlikte gönder
+            return ResponseEntity.ok(new JwtResponse(token, refreshToken));
+
         } catch (Exception e) {
             return ResponseEntity.status(401).body("Geçersiz kullanıcı adı veya şifre");
         }
