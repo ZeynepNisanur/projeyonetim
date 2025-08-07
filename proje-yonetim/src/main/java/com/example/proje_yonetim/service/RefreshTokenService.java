@@ -32,6 +32,32 @@ public class RefreshTokenService {
         return refreshTokenRepository.findByToken(token);
     }
 
+    public Optional<RefreshToken> getByUser(User user) {
+        return refreshTokenRepository.findByUser(user);
+    }
+
+    public RefreshToken getOrCreateRefreshToken(String username) {
+        User user = userRepository.findByUseradi(username);
+
+        Optional<RefreshToken> existingToken = refreshTokenRepository.findByUser(user);
+
+        if (existingToken.isPresent() && !isTokenExpired(existingToken.get())) {
+            return existingToken.get(); // Var ve geçerli tokenı döndür
+        }
+
+        // Yoksa ya da süresi dolmuşsa yeni token oluştur
+        if (existingToken.isPresent()) {
+            refreshTokenRepository.delete(existingToken.get()); // Eskiyi sil
+        }
+
+        RefreshToken newToken = new RefreshToken();
+        newToken.setUser(user);
+        newToken.setToken(UUID.randomUUID().toString());
+        newToken.setExpiryDate(LocalDateTime.now().plusSeconds(refreshTokenDurationMs / 1000));
+
+        return refreshTokenRepository.save(newToken);
+    }
+
     public RefreshToken createRefreshToken(String username) {
         User user = userRepository.findByUseradi(username);
 
@@ -51,5 +77,18 @@ public class RefreshTokenService {
     public void deleteByUser(String username) {
         User user = userRepository.findByUseradi(username);
         refreshTokenRepository.deleteByUser(user);
+    }
+
+    // süresi geçmiş tokenı kontrol edip silme
+    public RefreshToken getValidRefreshToken(String token) {
+        RefreshToken refreshToken = findByToken(token)
+                .orElseThrow(() -> new RuntimeException("Refresh token bulunamadı: " + token));
+
+        if (isTokenExpired(refreshToken)) {
+            refreshTokenRepository.delete(refreshToken);
+            throw new RuntimeException("Refresh token süresi dolmuş. Lütfen tekrar giriş yapın.");
+        }
+
+        return refreshToken;
     }
 }

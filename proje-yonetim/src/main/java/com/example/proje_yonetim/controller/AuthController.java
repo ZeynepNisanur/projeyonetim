@@ -7,7 +7,7 @@ package com.example.proje_yonetim.controller;
 //import com.example.proje_yonetim.repository.UserRepository;
 //import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.http.HttpStatus;
+//import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,7 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.proje_yonetim.dto.AuthRequestDto;
 //import com.example.proje_yonetim.dto.AuthResponse;
 import com.example.proje_yonetim.dto.JwtResponse;
-import com.example.proje_yonetim.dto.TokenRefreshRequest;
+//import com.example.proje_yonetim.dto.TokenRefreshRequest;
+//import com.example.proje_yonetim.entity.RefreshToken;
 //import com.example.proje_yonetim.repository.UserRepository;
 //import com.example.proje_yonetim.entity.RefreshToken;
 import com.example.proje_yonetim.security.JwtUtil;
@@ -34,14 +35,14 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
-    private final RefreshTokenService refreshTokenService;
+    // private final RefreshTokenService refreshTokenService;
 
     public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil,
             UserDetailsService userDetailsService, RefreshTokenService refreshTokenService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
-        this.refreshTokenService = refreshTokenService;
+        // this.refreshTokenService = refreshTokenService;
     }
 
     @PostMapping("/login")
@@ -55,10 +56,11 @@ public class AuthController {
             String token = jwtUtil.generateToken(userDetails);
 
             // Refresh token üret
-            String refreshToken = refreshTokenService.createRefreshToken(userDetails.getUsername()).getToken();
+            // String refreshToken =
+            // refreshTokenService.createRefreshToken(userDetails.getUsername()).getToken();
 
             // Tokenları birlikte gönder
-            return ResponseEntity.ok(new JwtResponse(token, refreshToken));
+            return ResponseEntity.ok(new JwtResponse(token, null));
 
         } catch (Exception e) {
             return ResponseEntity.status(401).body("Geçersiz kullanıcı adı veya şifre");
@@ -107,24 +109,53 @@ public class AuthController {
      * }
      * }
      */
-    @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(@RequestBody TokenRefreshRequest request) {
-        String requestToken = request.getRefreshToken();
 
-        return refreshTokenService.findByToken(requestToken)
-                .map(refreshToken -> {
-                    if (refreshTokenService.isTokenExpired(refreshToken)) {
-                        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                                .body("token süresi dolmuştur. yeniden giriş yapın.");
-                    }
-                    String username = refreshToken.getUser().getUseradi();
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                    String newAccessToken = jwtUtil.generateToken(userDetails);
-                    JwtResponse jwtResponse = new JwtResponse(newAccessToken, requestToken);
+    /*
+     * @PostMapping("/refresh-token")
+     * public ResponseEntity<?> refreshToken(@RequestBody TokenRefreshRequest
+     * request) {
+     * String requestToken = request.getRefreshToken();
+     * 
+     * return refreshTokenService.findByToken(requestToken)
+     * .map(refreshToken -> {
+     * if (refreshTokenService.isTokenExpired(refreshToken)) {
+     * refreshTokenRepository.delete(refreshToken);
+     * return ResponseEntity.status(HttpStatus.FORBIDDEN)
+     * .body("token süresi dolmuştur. yeniden giriş yapın.");
+     * }
+     * String username = refreshToken.getUser().getUseradi();
+     * UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+     * String newAccessToken = jwtUtil.generateToken(userDetails);
+     * JwtResponse jwtResponse = new JwtResponse(newAccessToken, requestToken);
+     * 
+     * return ResponseEntity.ok(jwtResponse);
+     * })
+     * .orElseGet(() ->
+     * ResponseEntity.badRequest().body("Refresh token bulunamadı"));
+     * }
+     */
 
-                    return ResponseEntity.ok(jwtResponse);
-                })
-                .orElseGet(() -> ResponseEntity.badRequest().body("Refresh token bulunamadı"));
-    }
+    /*
+     * @PostMapping("/refresh-token")
+     * public ResponseEntity<?> refreshToken(@RequestBody TokenRefreshRequest
+     * request) {
+     * String requestToken = request.getRefreshToken();
+     * 
+     * try {
+     * RefreshToken refreshToken =
+     * refreshTokenService.getValidRefreshToken(requestToken); // burada hem
+     * // kontrol,hem silme var
+     * 
+     * String username = refreshToken.getUser().getUseradi();
+     * UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+     * String newAccessToken = jwtUtil.generateToken(userDetails);
+     * JwtResponse jwtResponse = new JwtResponse(newAccessToken, requestToken);
+     * 
+     * return ResponseEntity.ok(jwtResponse);
+     * } catch (RuntimeException ex) {
+     * return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+     * }
+     * }
+     */
 
 }
