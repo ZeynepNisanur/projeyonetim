@@ -2,8 +2,13 @@ package com.example.proje_yonetim.repository;
 
 import com.example.proje_yonetim.entity.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import java.util.Optional;
 
-//temel CRUD operasyonlarını gerçekleştirir. 
+@Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
-    Role findByName(String name);
+
+    Optional<Role> findByName(String name);
+
+    boolean existsByName(String name);
 }

@@ -12,13 +12,24 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private String useradi;
+    @Column(nullable = false)
     private String sifre;
     private boolean enabled = true;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"), uniqueConstraints = @UniqueConstraint(columnNames = {
+            "user_id", "role_id" }))
     private Set<Role> roles = new HashSet<>();
+
+    public User() {
+    }
+
+    public User(String useradi, String sifre) {
+        this.useradi = useradi;
+        this.sifre = sifre;
+    }
 
     // kullanıcının birden fazla rolü olabileceği için role ilişkisi...^
     public Long getId() {
@@ -57,6 +68,30 @@ public class User {
         this.roles = roles;
     }
 
-    @Column(name = "refresh_token")
-    private String refreshToken;
+    // Role ekleme metodu
+    public void addRole(Role role) {
+        this.roles.add(role);
+        role.getUsers().add(this);
+    }
+
+    // Role çıkarma metodu
+    public void removeRole(Role role) {
+        this.roles.remove(role);
+        role.getUsers().remove(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        User user = (User) obj;
+        return useradi != null && useradi.equals(user.useradi);
+    }
+
+    @Override
+    public int hashCode() {
+        return useradi != null ? useradi.hashCode() : 0;
+    }
 }

@@ -37,7 +37,8 @@ public class RefreshTokenService {
     }
 
     public RefreshToken getOrCreateRefreshToken(String username) {
-        User user = userRepository.findByUseradi(username);
+        User user = userRepository.findByUseradi(username)
+                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı: " + username));
 
         Optional<RefreshToken> existingToken = refreshTokenRepository.findByUser(user);
 
@@ -59,7 +60,8 @@ public class RefreshTokenService {
     }
 
     public RefreshToken createRefreshToken(String username) {
-        User user = userRepository.findByUseradi(username);
+        User user = userRepository.findByUseradi(username)
+                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı: " + username));
 
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setUser(user);
@@ -75,7 +77,8 @@ public class RefreshTokenService {
 
     @Transactional
     public void deleteByUser(String username) {
-        User user = userRepository.findByUseradi(username);
+        User user = userRepository.findByUseradi(username)
+                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı: " + username));
         refreshTokenRepository.deleteByUser(user);
     }
 

@@ -24,4 +24,5 @@ public class UserController {
         userService.registerUser(user);
         return ResponseEntity.ok("Kullanıcı başarıyla kaydedildi!");
     }
+
 }
