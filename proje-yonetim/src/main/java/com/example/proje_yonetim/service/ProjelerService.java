@@ -3,21 +3,14 @@ package com.example.proje_yonetim.service;
 import com.example.proje_yonetim.dto.CalisanlarDto;
 import com.example.proje_yonetim.dto.ProjelerDto;
 import com.example.proje_yonetim.entity.Calisanlar;
-//import com.example.proje_yonetim.entity.Calisanlar;
 import com.example.proje_yonetim.entity.Projeler;
 import com.example.proje_yonetim.repository.CalisanlarRepository;
 import com.example.proje_yonetim.repository.ProjelerRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import com.example.proje_yonetim.entity.Durum;
-//import jakarta.persistence.JoinColumn;
-//import jakarta.persistence.JoinTable;
-//import jakarta.persistence.ManyToMany;
-
 import org.springframework.stereotype.Service;
 
-//import java.util.HashSet;
-//import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
