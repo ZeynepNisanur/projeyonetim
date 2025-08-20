@@ -1,5 +1,6 @@
-# 🎨 Proje Yönetim Sistemi - Frontend
+# 🌟 Proje Yönetim Sistemi
 
-Bu repo React ile geliştirilmiş frontend kodlarını içerir.  
-Backend için buraya bakabilirsin:  
-👉 [Backend (Spring Boot)](https://github.com/ZeynepNisanur/projeyonetim)
+Bu proje iki parçadan oluşuyor:
+
+- 🖥️ [Backend (Spring Boot)](https://github.com/ZeynepNisanur/projeyonetim)
+- 🎨 [Frontend (React)](https://github.com/ZeynepNisanur/frontend)
