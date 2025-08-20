@@ -82,12 +82,13 @@ public class DashboardController {
                         .collect(Collectors.toList());
                 data.put("sonProjeler", sonProjeler);
 
-                // Son eklenen çalışanlar (son 5)
-                List<Calisanlar> sonCalisanlar = tumCalisanlar.stream()
-                        .sorted((c1, c2) -> Long.compare(c2.getId(), c1.getId())) // ID'ye göre azalan sırada
-                        .limit(5)
-                        .collect(Collectors.toList());
-                data.put("sonCalisanlar", sonCalisanlar);
+                // // Son eklenen çalışanlar (son 5)
+                // List<Calisanlar> sonCalisanlar = tumCalisanlar.stream()
+                // .sorted((c1, c2) -> Long.compare(c2.getId(), c1.getId())) // ID'ye göre
+                // azalan sırada
+                // .limit(5)
+                // .collect(Collectors.toList());
+                // data.put("sonCalisanlar", sonCalisanlar);
 
                 // Proje durumu dağılımı
                 Map<String, Object> durumDagilimi = new HashMap<>();
@@ -111,11 +112,10 @@ public class DashboardController {
                 data.put("message", useradi + " için özel dashboard!");
                 data.put("userType", "USER");
 
-                // Kullanıcının kendi projelerini al (email ile eşleştirme yapılabilir)
+                // Kullanıcının kendi projelerini al (eposta ile eşleştirme yapılabilir)
                 List<Projeler> kullaniciProjeler = projelerService.tumProjeleriGetir().stream()
                         .filter(p -> {
-                            // Burada kullanıcının projelerini filtreleme mantığını ekleyin
-                            // Örnek: çalışan email'i ile eşleştirme
+                            // Burada kullanıcının projelerini filtreleme mantığını ekleyip
                             return p.getCalisanlar() != null &&
                                     p.getCalisanlar().stream()
                                             .anyMatch(c -> useradi.equals(c.getEposta()));
@@ -330,52 +330,3 @@ public class DashboardController {
         }
     }
 }
-
-/*
- * boolean isUser = authentication.getAuthorities().stream()
- * .map(GrantedAuthority::getAuthority)
- * .anyMatch(role -> role.equals("ROLE_USER"));
- * 
- * if (isAdmin) {
- * data.put("message",
- * "Admin paneline hoş geldiniz!" + " " + useradi + " " + data.put("modules",
- * Arrays.asList(
- * "Çalışan Listesi ",
- * "Proje Yönetimi",
- * "Kullanıcı Yönetimi")));
- * data.put("userType", "ADMIN");
- * } else if (isUser) {
- * data.put("message", useradi + " için özel dashboard!");
- * data.put("modules", Arrays.asList(" Kendi Projelerim", "PRofil Ayarları"));
- * data.put("userType", "USER");
- * } else {
- * data.put("message", "Hoş geldiniz," + useradi);
- * data.put("modules", Arrays.asList("Genel Bilgiler"));
- * data.put("userType", "UNKNOWN");
- * }
- * data.put("username", useradi);
- * data.put("timestamp", System.currentTimeMillis());
- * data.put("roles", authentication.getAuthorities().stream()
- * .map(GrantedAuthority::getAuthority)
- * .toArray());
- * return ResponseEntity.ok(data);
- * }
- * 
- * @GetMapping("/user-info")
- * public ResponseEntity<?> getUserInfo(Authentication authentication) {
- * if (authentication == null || !authentication.isAuthenticated()) {
- * return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
- * .body("Kullanıcı doğrulanmadı");
- * }
- * 
- * Map<String, Object> userInfo = new HashMap<>();
- * userInfo.put("username", authentication.getName());
- * userInfo.put("roles", authentication.getAuthorities().stream()
- * .map(GrantedAuthority::getAuthority)
- * .toArray());
- * userInfo.put("authenticated", true);
- * 
- * return ResponseEntity.ok(userInfo);
- * }
- * }
- */

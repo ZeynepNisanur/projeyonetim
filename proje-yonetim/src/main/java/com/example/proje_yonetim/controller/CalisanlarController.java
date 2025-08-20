@@ -2,6 +2,8 @@ package com.example.proje_yonetim.controller;
 
 import com.example.proje_yonetim.entity.Calisanlar;
 import com.example.proje_yonetim.service.CalisanlarService;
+import com.example.proje_yonetim.service.ProjelerService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,9 +14,12 @@ import java.util.List;
 public class CalisanlarController {
 
     private final CalisanlarService calisanlarService;
+    private final ProjelerService projelerService; // Doğru tanımlama
 
-    public CalisanlarController(CalisanlarService calisanlarService) {
+    // Constructor injection (önerilen yöntem)
+    public CalisanlarController(CalisanlarService calisanlarService, ProjelerService projelerService) {
         this.calisanlarService = calisanlarService;
+        this.projelerService = projelerService;
     }
 
     @GetMapping
@@ -51,5 +56,21 @@ public class CalisanlarController {
     public ResponseEntity<Void> deleteCalisan(@PathVariable Long id) {
         calisanlarService.deleteCalisan(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{calisanId}/projeler/{projeId}")
+    public ResponseEntity<String> calisaniProjeEkle(
+            @PathVariable Long calisanId,
+            @PathVariable Long projeId) {
+        projelerService.calisanEkle(projeId, calisanId);
+        return ResponseEntity.ok("Çalışan projeye eklendi.");
+    }
+
+    @DeleteMapping("/{calisanId}/projeler/{projeId}")
+    public ResponseEntity<String> calisaniProjedenCikar(
+            @PathVariable Long calisanId,
+            @PathVariable Long projeId) {
+        projelerService.calisanCikar(projeId, calisanId);
+        return ResponseEntity.ok("Çalışan projeden çıkarıldı.");
     }
 }

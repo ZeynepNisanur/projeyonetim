@@ -4,11 +4,15 @@ import com.example.proje_yonetim.dto.ProjelerDto;
 import com.example.proje_yonetim.dto.ProjelerDurumGuncelleme;
 import com.example.proje_yonetim.entity.Projeler;
 import com.example.proje_yonetim.service.ProjelerService;
-//import com.example.proje_yonetim.entity.Durum; 
+
+import org.springframework.security.core.Authentication;
+import com.example.proje_yonetim.entity.Durum;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/projeler")
@@ -57,12 +61,44 @@ public class ProjelerController {
         return projelerService.projeGetir(id).orElse(null);
     }
 
+    // ✅ Durum güncelleme (DTO kullanıyor)
     @PutMapping("/{projeId}/durum")
-    public ResponseEntity<String> projeDurumGuncelle(
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updateProjectStatus(
             @PathVariable Long projeId,
             @RequestBody ProjelerDurumGuncelleme request) {
 
-        projelerService.projeDurumGuncelle(projeId, request.getDurum());
-        return ResponseEntity.ok("Durum güncellendi");
+        try {
+            projelerService.projeDurumGuncelle(projeId, request.getDurum());
+            return ResponseEntity.ok().body(Map.of("message", "Durum güncellendi"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    // ✅ Alternatif patch endpoint
+    @PatchMapping("/{projeId}/durum")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updateProjectPartial(
+            @PathVariable Long projeId,
+            @RequestBody Map<String, Object> updates,
+            Authentication authentication) {
+
+        try {
+            if (updates.containsKey("durum")) {
+                String durumStr = (String) updates.get("durum");
+                Durum yeniDurum = Durum.valueOf(durumStr.toUpperCase());
+                projelerService.projeDurumGuncelle(projeId, yeniDurum);
+            }
+
+            return ResponseEntity.ok(Map.of("message", "Durum güncellendi"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Geçersiz durum değeri"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", e.getMessage()));
+        }
     }
 }

@@ -6,8 +6,6 @@ import com.example.proje_yonetim.entity.Calisanlar;
 import com.example.proje_yonetim.entity.Projeler;
 import com.example.proje_yonetim.repository.CalisanlarRepository;
 import com.example.proje_yonetim.repository.ProjelerRepository;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import com.example.proje_yonetim.entity.Durum;
 import org.springframework.stereotype.Service;
 
@@ -41,32 +39,14 @@ public class ProjelerService {
 
     public Projeler projeEkle(Projeler projeler) {
         return projelerRepository.save(projeler);
-        // varsa mevcut günceller
     }
 
     public void projeSil(Long id) {
         projelerRepository.deleteById(id);
     }
 
-    public void calisanlarEkle(Long projeId, Long calisanId) {
-        Projeler proje = projelerRepository.findById(projeId)
-                .orElseThrow(() -> new RuntimeException("Proje bulunamadı"));
-
-        Calisanlar calisan = calisanlarRepository.findById(calisanId)
-                .orElseThrow(() -> new RuntimeException("Çalışan bulunamadı"));
-
-        proje.getCalisanlar().add(calisan);
-        projelerRepository.save(proje);
-    }
-
-    @Autowired
-    private ProjelerRepository projelerRepo;
-
-    @Autowired
-    private CalisanlarRepository calisanlarRepo;
-
     public ProjelerDto getProje(Long projeId) {
-        Projeler projeler = projelerRepo.findById(projeId)
+        Projeler projeler = projelerRepository.findById(projeId)
                 .orElseThrow(() -> new RuntimeException("Proje bulunamadı"));
 
         List<CalisanlarDto> calisanlarDtos = projeler.getCalisanlar().stream()
@@ -77,29 +57,29 @@ public class ProjelerService {
     }
 
     public void calisanEkle(Long projeId, Long calisanId) {
-        Projeler projeler = projelerRepo.findById(projeId)
+        Projeler projeler = projelerRepository.findById(projeId)
                 .orElseThrow(() -> new RuntimeException("Proje bulunamadı"));
 
-        Calisanlar calisanlar = calisanlarRepo.findById(calisanId)
+        Calisanlar calisanlar = calisanlarRepository.findById(calisanId)
                 .orElseThrow(() -> new RuntimeException("Çalışan bulunamadı"));
 
         projeler.getCalisanlar().add(calisanlar);
-        projelerRepo.save(projeler);
+        projelerRepository.save(projeler);
     }
 
     public void calisanCikar(Long projeId, Long calisanId) {
-        Projeler projeler = projelerRepo.findById(projeId)
+        Projeler projeler = projelerRepository.findById(projeId)
                 .orElseThrow(() -> new RuntimeException("Proje bulunamadı"));
 
-        Calisanlar calisanlar = calisanlarRepo.findById(calisanId)
+        Calisanlar calisanlar = calisanlarRepository.findById(calisanId)
                 .orElseThrow(() -> new RuntimeException("Çalışan bulunamadı"));
 
         projeler.getCalisanlar().remove(calisanlar);
-        projelerRepo.save(projeler);
+        projelerRepository.save(projeler);
     }
 
     public void projeDurumGuncelle(Long projeId, Durum yeniDurum) {
-        Projeler proje = projelerRepo.findById(projeId)
+        Projeler proje = projelerRepository.findById(projeId)
                 .orElseThrow(() -> new RuntimeException("Proje bulunamadı"));
 
         proje.setDurum(yeniDurum);
