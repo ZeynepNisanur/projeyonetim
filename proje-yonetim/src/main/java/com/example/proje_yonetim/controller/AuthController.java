@@ -21,14 +21,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.proje_yonetim.dto.AuthRequestDto;
-//import com.example.proje_yonetim.dto.AuthResponse;
 import com.example.proje_yonetim.dto.JwtResponse;
 //import com.example.proje_yonetim.dto.TokenRefreshRequest;
 //import com.example.proje_yonetim.entity.RefreshToken;
 //import com.example.proje_yonetim.repository.UserRepository;
 //import com.example.proje_yonetim.entity.RefreshToken;
 import com.example.proje_yonetim.security.JwtUtil;
-//import com.example.proje_yonetim.dto.AuthRequestDto;
 import com.example.proje_yonetim.service.RefreshTokenService;
 
 @RestController
