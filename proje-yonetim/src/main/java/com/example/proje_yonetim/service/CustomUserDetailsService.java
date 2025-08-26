@@ -19,12 +19,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String useradi) throws UsernameNotFoundException {
-        User user = userRepository.findByUseradi(useradi)
-                .orElseThrow(() -> new UsernameNotFoundException("Kullanıcı bulunamadı: " + useradi));
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Kullanıcı bulunamadı: " + username));
 
         return new CustomUserDetails(user);
-
     }
-
 }

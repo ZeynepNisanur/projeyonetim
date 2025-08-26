@@ -3,15 +3,13 @@ package com.example.proje_yonetim.entity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-//import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Collection;
-//import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Collections;
 
 public class CustomUserDetails implements UserDetails {
 
-    private final User user;
+    private User user;
 
     public CustomUserDetails(User user) {
         this.user = user;
@@ -19,9 +17,9 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName().toUpperCase()))
-                .collect(Collectors.toSet());
+        // Tek rol için basitleştirilmiş yetkilendirme
+        return Collections.singletonList(
+                new SimpleGrantedAuthority("ROLE_" + user.getRole().getName().name()));
     }
 
     @Override
@@ -31,7 +29,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getUseradi();
+        return user.getUsername(); // username field'ı kullanılıyor
     }
 
     @Override
@@ -51,7 +49,10 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return user.isEnabled(); // User entity'nizde enabled field'ı olmalı
     }
 
+    public User getUser() {
+        return user;
+    }
 }

@@ -20,6 +20,8 @@ import com.example.proje_yonetim.entity.Projeler;
 import com.example.proje_yonetim.entity.Durum;
 import com.example.proje_yonetim.service.CalisanlarService;
 import com.example.proje_yonetim.service.ProjelerService;
+import com.example.proje_yonetim.entity.User;
+import com.example.proje_yonetim.repository.UserRepository;
 
 @RestController
 @RequestMapping("/api/dashboard")
@@ -30,6 +32,9 @@ public class DashboardController {
 
     @Autowired
     private ProjelerService projelerService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping
     public ResponseEntity<?> getDashboard(Authentication authentication) {
@@ -113,13 +118,13 @@ public class DashboardController {
                 data.put("userType", "USER");
 
                 // Kullanıcının kendi projelerini al (eposta ile eşleştirme yapılabilir)
+                // Kullanıcının adını User.useradi üzerinden eşleştir
+                User currentUser = userRepository.findByUsername(useradi).orElse(null);
+                String currentAd = currentUser != null ? currentUser.getUsername() : null;
+
                 List<Projeler> kullaniciProjeler = projelerService.tumProjeleriGetir().stream()
-                        .filter(p -> {
-                            // Burada kullanıcının projelerini filtreleme mantığını ekleyip
-                            return p.getCalisanlar() != null &&
-                                    p.getCalisanlar().stream()
-                                            .anyMatch(c -> useradi.equals(c.getEposta()));
-                        })
+                        .filter(p -> p.getCalisanlar() != null && currentAd != null &&
+                                p.getCalisanlar().stream().anyMatch(c -> currentAd.equals(c.getAd())))
                         .collect(Collectors.toList());
 
                 data.put("benimProjelerim", kullaniciProjeler);
@@ -140,6 +145,12 @@ public class DashboardController {
 
                 data.put("statistics", userStats);
             }
+
+            // Null-safe zorunlu alanlar
+            data.putIfAbsent("statistics", new HashMap<>());
+            data.putIfAbsent("projeDurumDagilimi", new HashMap<>());
+            data.putIfAbsent("sonProjeler", List.of());
+            data.putIfAbsent("benimProjelerim", List.of());
 
             data.put("username", useradi);
             data.put("timestamp", System.currentTimeMillis());
@@ -172,23 +183,29 @@ public class DashboardController {
             List<Projeler> projeler = projelerService.tumProjeleriGetir();
 
             Map<String, Object> ozet = new HashMap<>();
-            ozet.put("toplamCalisanSayisi", calisanlar.size());
-            ozet.put("calisanlar", calisanlar);
+            ozet.put("toplamCalisanSayisi", calisanlar != null ? calisanlar.size() : 0);
+            ozet.put("calisanlar", calisanlar != null ? calisanlar : List.of());
 
-            // Her çalışan için proje sayısını hesapla
             Map<Long, Integer> calisanProjeSayilari = new HashMap<>();
-            for (Calisanlar calisan : calisanlar) {
-                int projeSayisi = (int) projeler.stream()
-                        .filter(p -> p.getCalisanlar() != null && p.getCalisanlar().contains(calisan))
-                        .count();
-                calisanProjeSayilari.put(calisan.getId(), projeSayisi);
+            if (calisanlar != null && projeler != null) {
+                for (Calisanlar calisan : calisanlar) {
+                    int projeSayisi = (int) projeler.stream()
+                            .filter(p -> p.getCalisanlar() != null && p.getCalisanlar().contains(calisan))
+                            .count();
+                    if (calisan.getId() != null) {
+                        calisanProjeSayilari.put(calisan.getId(), projeSayisi);
+                    }
+                }
             }
             ozet.put("calisanProjeSayilari", calisanProjeSayilari);
 
             return ResponseEntity.ok(ozet);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Çalışanlar özeti yüklenirken hata: " + e.getMessage());
+            Map<String, Object> ozet = new HashMap<>();
+            ozet.put("toplamCalisanSayisi", 0);
+            ozet.put("calisanlar", List.of());
+            ozet.put("calisanProjeSayilari", new HashMap<>());
+            return ResponseEntity.ok(ozet);
         }
     }
 
@@ -207,36 +224,36 @@ public class DashboardController {
         try {
             List<Projeler> projeler;
             if (isAdmin) {
-                // Admin tüm projeleri görebilir
                 projeler = projelerService.tumProjeleriGetir();
             } else {
-                // Normal kullanıcı sadece kendi projelerini görebilir
+                User currentUser = userRepository.findByUsername(useradi).orElse(null);
+                String currentAd = currentUser != null ? currentUser.getUsername() : null;
                 projeler = projelerService.tumProjeleriGetir().stream()
-                        .filter(p -> {
-                            // Kullanıcının projelerini filtreleme mantığı
-                            return p.getCalisanlar() != null &&
-                                    p.getCalisanlar().stream()
-                                            .anyMatch(c -> useradi.equals(c.getEposta()));
-                        })
+                        .filter(p -> p.getCalisanlar() != null && currentAd != null &&
+                                p.getCalisanlar().stream().anyMatch(c -> currentAd.equals(c.getAd())))
                         .collect(Collectors.toList());
             }
 
             Map<String, Object> ozet = new HashMap<>();
-            ozet.put("toplamProjeSayisi", projeler.size());
-            ozet.put("projeler", projeler);
+            ozet.put("toplamProjeSayisi", projeler != null ? projeler.size() : 0);
+            ozet.put("projeler", projeler != null ? projeler : List.of());
 
-            // Durum dağılımı
             Map<String, Long> durumDagilimi = new HashMap<>();
-            for (Projeler proje : projeler) {
-                String durumKey = proje.getDurum() != null ? proje.getDurum().toString() : "BELIRTILMEMIS";
-                durumDagilimi.merge(durumKey, 1L, Long::sum);
+            if (projeler != null) {
+                for (Projeler proje : projeler) {
+                    String durumKey = proje.getDurum() != null ? proje.getDurum().toString() : "BELIRTILMEMIS";
+                    durumDagilimi.merge(durumKey, 1L, Long::sum);
+                }
             }
             ozet.put("durumDagilimi", durumDagilimi);
 
             return ResponseEntity.ok(ozet);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Projeler özeti yüklenirken hata: " + e.getMessage());
+            Map<String, Object> ozet = new HashMap<>();
+            ozet.put("toplamProjeSayisi", 0);
+            ozet.put("projeler", List.of());
+            ozet.put("durumDagilimi", new HashMap<>());
+            return ResponseEntity.ok(ozet);
         }
     }
 
@@ -261,9 +278,10 @@ public class DashboardController {
 
             // Admin değilse, kullanıcının projeye erişim yetkisi var mı kontrol et
             if (!isAdmin) {
-                boolean kullaniciProjesinde = proje.getCalisanlar() != null &&
-                        proje.getCalisanlar().stream()
-                                .anyMatch(c -> useradi.equals(c.getEposta()));
+                User currentUser = userRepository.findByUsername(useradi).orElse(null);
+                String currentAd = currentUser != null ? currentUser.getUsername() : null;
+                boolean kullaniciProjesinde = proje.getCalisanlar() != null && currentAd != null &&
+                        proje.getCalisanlar().stream().anyMatch(c -> currentAd.equals(c.getAd()));
 
                 if (!kullaniciProjesinde) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN)

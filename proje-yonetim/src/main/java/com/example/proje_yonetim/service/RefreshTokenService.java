@@ -36,9 +36,9 @@ public class RefreshTokenService {
         return refreshTokenRepository.findByUser(user);
     }
 
-    public RefreshToken getOrCreateRefreshToken(String username) {
-        User user = userRepository.findByUseradi(username)
-                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı: " + username));
+    public RefreshToken getOrCreateRefreshToken(String kullaniciadi) {
+        User user = userRepository.findByUsername(kullaniciadi)
+                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı: " + kullaniciadi));
 
         Optional<RefreshToken> existingToken = refreshTokenRepository.findByUser(user);
 
@@ -59,9 +59,9 @@ public class RefreshTokenService {
         return refreshTokenRepository.save(newToken);
     }
 
-    public RefreshToken createRefreshToken(String username) {
-        User user = userRepository.findByUseradi(username)
-                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı: " + username));
+    public RefreshToken createRefreshToken(String kullaniciadi) {
+        User user = userRepository.findByUsername(kullaniciadi)
+                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı: " + kullaniciadi));
 
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setUser(user);
@@ -76,9 +76,9 @@ public class RefreshTokenService {
     }
 
     @Transactional
-    public void deleteByUser(String username) {
-        User user = userRepository.findByUseradi(username)
-                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı: " + username));
+    public void deleteByUser(String kullaniciadi) {
+        User user = userRepository.findByUsername(kullaniciadi)
+                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı: " + kullaniciadi));
         refreshTokenRepository.deleteByUser(user);
     }
 

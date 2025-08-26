@@ -1,47 +1,61 @@
 package com.example.proje_yonetim.entity;
 
-import java.util.Set;
-
-import java.util.HashSet;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "users")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String useradi;
+    @Column(name = "useradi", unique = true, nullable = true)
+    private String username;
+
     @Column(nullable = false)
     private String sifre;
-    private boolean enabled = true;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
-    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"), uniqueConstraints = @UniqueConstraint(columnNames = {
-            "user_id", "role_id" }))
-    private Set<Role> roles = new HashSet<>();
+    @Column(unique = true, nullable = true)
+    private String eposta;
+
+    @Column(nullable = false)
+    private boolean enabled = true; // Spring Security için gerekli
+
+    // Bir kullanıcının sadece bir rolü olabilir (Many-to-One)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 
     public User() {
     }
 
-    public User(String useradi, String sifre) {
-        this.useradi = useradi;
+    public User(String username, String sifre, String eposta) {
+        this.username = username;
         this.sifre = sifre;
+        this.eposta = eposta;
+        this.enabled = true;
     }
 
-    // kullanıcının birden fazla rolü olabileceği için role ilişkisi...^
+    public User(String username, String sifre, String eposta, Role role) {
+        this.username = username;
+        this.sifre = sifre;
+        this.eposta = eposta;
+        this.role = role;
+        this.enabled = true;
+    }
+
+    // Getters and Setters
     public Long getId() {
         return id;
     }
 
-    public String getUseradi() {
-        return useradi;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUseradi(String useradi) {
-        this.useradi = useradi;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getSifre() {
@@ -52,6 +66,14 @@ public class User {
         this.sifre = sifre;
     }
 
+    public String getEposta() {
+        return eposta;
+    }
+
+    public void setEposta(String eposta) {
+        this.eposta = eposta;
+    }
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -60,24 +82,26 @@ public class User {
         this.enabled = enabled;
     }
 
-    public Set<Role> getRoles() {
-        return roles;
+    public Role getRole() {
+        return role;
     }
 
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
+    public void setRole(Role role) {
+        this.role = role;
     }
 
-    // Role ekleme metodu
-    public void addRole(Role role) {
-        this.roles.add(role);
-        role.getUsers().add(this);
+    // Convenience method - rolün adını almak için
+    public Role.RoleName getRoleName() {
+        return role != null ? role.getName() : null;
     }
 
-    // Role çıkarma metodu
-    public void removeRole(Role role) {
-        this.roles.remove(role);
-        role.getUsers().remove(this);
+    // Role kontrolü için yardımcı metodlar
+    public boolean isAdmin() {
+        return role != null && role.getName() == Role.RoleName.ADMIN;
+    }
+
+    public boolean isUser() {
+        return role != null && role.getName() == Role.RoleName.USER;
     }
 
     @Override
@@ -87,11 +111,22 @@ public class User {
         if (obj == null || getClass() != obj.getClass())
             return false;
         User user = (User) obj;
-        return useradi != null && useradi.equals(user.useradi);
+        return username != null && username.equals(user.username);
     }
 
     @Override
     public int hashCode() {
-        return useradi != null ? useradi.hashCode() : 0;
+        return username != null ? username.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", eposta='" + eposta + '\'' +
+                ", enabled=" + enabled +
+                ", role=" + (role != null ? role.getName() : null) +
+                '}';
     }
 }

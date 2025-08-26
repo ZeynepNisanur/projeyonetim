@@ -25,5 +25,5 @@ public class ProjelerDto {
     public List<CalisanlarDto> getCalisanlar() {
         return calisanlar;
     }
-    // salt okunurlukmuş!
+
 }

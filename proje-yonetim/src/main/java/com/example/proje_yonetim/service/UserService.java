@@ -1,78 +1,85 @@
 package com.example.proje_yonetim.service;
 
-//import java.util.Collections;
-//import java.util.Set;
-import org.springframework.security.crypto.password.PasswordEncoder;
-//rt org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import com.example.proje_yonetim.entity.User;
 import com.example.proje_yonetim.entity.Role;
+import com.example.proje_yonetim.entity.User;
 import com.example.proje_yonetim.repository.RoleRepository;
 import com.example.proje_yonetim.repository.UserRepository;
-import org.springframework.transaction.annotation.Transactional;
-import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+//import java.util.Optional;
 
 @Service
-@Transactional
 public class UserService {
 
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-    private final PasswordEncoder passwordEncoder;
+    @Autowired
+    private UserRepository userRepository;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+    @Autowired
+    private RoleRepository roleRepository;
 
-    public User saveUser(User user) {
-        // Kullanıcı zaten var mı kontrol et
+    // Varsayılan USER rolü ile kullanıcı oluşturma
+    public User createUser(String username, String password, String email) {
+        Role userRole = roleRepository.findByName(Role.RoleName.USER)
+                .orElseThrow(() -> new RuntimeException("USER role not found"));
 
-        if (userRepository.findByUseradi(user.getUseradi()).isPresent()) {
-            throw new RuntimeException("Bu kullanıcı adı zaten kullanılıyor: " + user.getUseradi());
-        }
-
-        // Şifreyi encode et
-        user.setSifre(passwordEncoder.encode(user.getSifre()));
-
-        // Varsayılan rol ekle (eğer rol yoksa)
-        if (user.getRoles().isEmpty()) {
-            Optional<Role> roleOptional = roleRepository.findByName("USER");
-            Role defaultRole;
-            if (roleOptional.isPresent()) {
-                defaultRole = roleOptional.get();
-            } else {
-                defaultRole = new Role("USER");
-                defaultRole = roleRepository.save(defaultRole);
-            }
-            user.addRole(defaultRole);
-        }
+        User user = new User(username, password, email, userRole);
         return userRepository.save(user);
     }
 
-    public User registerUser(User user) {
-        return saveUser(user);
+    // Belirli bir rolle kullanıcı oluşturma
+    public User createUserWithRole(String username, String password, String email, Role.RoleName roleName) {
+        Role role = roleRepository.findByName(roleName)
+                .orElseThrow(() -> new RuntimeException(roleName + " role not found"));
+
+        User user = new User(username, password, email, role);
+        return userRepository.save(user);
     }
 
-    public Optional<User> findByUseradi(String useradi) {
-        return userRepository.findByUseradi(useradi);
+    // Kullanıcının rolünü değiştirme
+    public User changeUserRole(Long userId, Role.RoleName newRoleName) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Role newRole = roleRepository.findByName(newRoleName)
+                .orElseThrow(() -> new RuntimeException(newRoleName + " role not found"));
+
+        user.setRole(newRole);
+        return userRepository.save(user);
     }
 
-    public boolean existsByUseradi(String useradi) {
-        return userRepository.findByUseradi(useradi).isPresent();
+    // Admin kullanıcıları listeleme
+    public List<User> getAllAdmins() {
+        Role adminRole = roleRepository.findByName(Role.RoleName.ADMIN)
+                .orElseThrow(() -> new RuntimeException("ADMIN role not found"));
+
+        return userRepository.findByRole(adminRole);
     }
 
-    public User loginUser(String useradi, String sifre) {
-        Optional<User> userOptional = userRepository.findByUseradi(useradi);
+    // Normal kullanıcıları listeleme
+    public List<User> getAllUsers() {
+        Role userRole = roleRepository.findByName(Role.RoleName.USER)
+                .orElseThrow(() -> new RuntimeException("USER role not found"));
 
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            if (passwordEncoder.matches(sifre, user.getSifre()) && user.isEnabled()) {
-                return user;
-            }
-        }
+        return userRepository.findByRole(userRole);
+    }
 
-        throw new RuntimeException("Geçersiz kullanıcı adı veya şifre");
+    // Kullanıcının admin olup olmadığını kontrol etme
+    public boolean isUserAdmin(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return user.isAdmin();
+    }
+
+    // Kullanıcıyı admin yapma
+    public User promoteToAdmin(Long userId) {
+        return changeUserRole(userId, Role.RoleName.ADMIN);
+    }
+
+    // Admin'i normal kullanıcı yapma
+    public User demoteToUser(Long userId) {
+        return changeUserRole(userId, Role.RoleName.USER);
     }
 }

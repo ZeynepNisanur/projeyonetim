@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import com.example.proje_yonetim.entity.Durum;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+// removed unused imports
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,8 @@ import java.util.Map;
 public class ProjelerController {
 
     private final ProjelerService projelerService;
+
+    // removed unused field
 
     public ProjelerController(ProjelerService projelerService) {
         this.projelerService = projelerService;
@@ -35,6 +38,7 @@ public class ProjelerController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public Projeler projeEkle(@RequestBody Projeler projeler) {
         return projelerService.projeEkle(projeler);
     }
@@ -46,6 +50,7 @@ public class ProjelerController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public void projeSil(@PathVariable Long id) {
         projelerService.projeSil(id);
     }

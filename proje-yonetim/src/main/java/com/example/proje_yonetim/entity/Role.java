@@ -8,34 +8,66 @@ import java.util.HashSet;
 @Table(name = "roles")
 public class Role {
 
+    // Inner enum tanımı
+    public enum RoleName {
+        ADMIN("ADMIN"),
+        USER("USER");
+
+        private final String value;
+
+        RoleName(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String name;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "name", unique = true, nullable = false)
+    private RoleName name;
+
+    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<User> users = new HashSet<>();
 
     public Role() {
-
     }
 
-    public Role(String name) {
+    public Role(RoleName name) {
         this.name = name;
     }
 
-    @ManyToMany(mappedBy = "roles")
-    private Set<User> users = new HashSet<>();
+    // Geriye uyumluluk için String constructor
+    public Role(String name) {
+        this.name = RoleName.valueOf(name.toUpperCase());
+    }
 
+    // Getters and Setters
     public Long getId() {
         return id;
     }
 
-    public String getName() {
+    public RoleName getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(RoleName name) {
         this.name = name;
+    }
+
+    // String ile set etme imkanı (geriye uyumluluk)
+    public void setName(String name) {
+        this.name = RoleName.valueOf(name.toUpperCase());
     }
 
     public Set<User> getUsers() {
@@ -60,5 +92,4 @@ public class Role {
     public int hashCode() {
         return name != null ? name.hashCode() : 0;
     }
-
 }

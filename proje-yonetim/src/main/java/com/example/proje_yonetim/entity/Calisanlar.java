@@ -4,6 +4,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+//import com.fasterxml.jackson.annotation.JsonManagedReference;
+//import com.fasterxml.jackson.annotation.JsonBackReference;
 
 //import jakarta.validation.constraints.Email;     // E-posta formatı için  @Email le kullanılır
 //import jakarta.validation.constraints.NotBlank;   // Boş olmaması için  //@NotBlank le kullanılır
@@ -11,6 +16,7 @@ import jakarta.persistence.*;
 
 @Table(name = "calisanlar")
 @Entity
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Calisanlar {
 
     @Id // primary key belirtir
@@ -21,6 +27,17 @@ public class Calisanlar {
     private String soyad;
     private String eposta;
     private String pozisyon;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id")
+    @JsonIgnoreProperties({ "users" })
+    private Role role; // Çalışanın rolü (ADMIN/USER)
+
+    @OneToOne(optional = true)
+    @JoinColumn(name = "user_id", unique = true)
+    @NotFound(action = NotFoundAction.IGNORE)
+    @JsonIgnoreProperties({ "role" })
+    private User user; // Kimlik doğrulama kaydı ile eşleşme
 
     public Calisanlar() {
     }
@@ -79,4 +96,28 @@ public class Calisanlar {
 
     @ManyToMany(mappedBy = "calisanlar")
     private Set<Projeler> projeler = new HashSet<>();
+
+    public Set<Projeler> getProjeler() {
+        return projeler;
+    }
+
+    public void setProjeler(Set<Projeler> projeler) {
+        this.projeler = projeler;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }
