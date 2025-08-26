@@ -6,6 +6,8 @@ import java.util.Set;
 import jakarta.persistence.*;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 //import com.fasterxml.jackson.annotation.JsonManagedReference;
 //import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -95,6 +97,7 @@ public class Calisanlar {
     }
 
     @ManyToMany(mappedBy = "calisanlar")
+    @JsonIgnore
     private Set<Projeler> projeler = new HashSet<>();
 
     public Set<Projeler> getProjeler() {
