@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-//import java.util.Optional;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -81,5 +81,49 @@ public class UserService {
     // Admin'i normal kullanıcı yapma
     public User demoteToUser(Long userId) {
         return changeUserRole(userId, Role.RoleName.USER);
+    }
+
+    /**
+     * Kullanıcı adına göre kullanıcı bulma
+     */
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
+    // Static method kaldırıldı, instance method kullanılmalı
+
+    /**
+     * Email'e göre kullanıcı bulma
+     */
+    public Optional<User> findByEposta(String eposta) {
+        return userRepository.findByEposta(eposta);
+    }
+
+    /**
+     * ID'ye göre kullanıcı bulma
+     */
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    /**
+     * Tüm kullanıcıları getir
+     */
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
+
+    /**
+     * Kullanıcı kaydet
+     */
+    public User save(User user) {
+        return userRepository.save(user);
+    }
+
+    /**
+     * Kullanıcı sil
+     */
+    public void deleteById(Long id) {
+        userRepository.deleteById(id);
     }
 }

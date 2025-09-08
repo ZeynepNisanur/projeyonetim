@@ -17,7 +17,7 @@ import com.example.proje_yonetim.dto.JwtResponse;
 //import com.example.proje_yonetim.entity.RefreshToken;
 //import com.example.proje_yonetim.repository.UserRepository;
 import com.example.proje_yonetim.security.JwtUtil;
-import com.example.proje_yonetim.service.RefreshTokenService;
+//import com.example.proje_yonetim.service.RefreshTokenService;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -28,7 +28,7 @@ public class AuthController {
     // private final RefreshTokenService refreshTokenService;
 
     public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil,
-            UserDetailsService userDetailsService, RefreshTokenService refreshTokenService) {
+            UserDetailsService userDetailsService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;

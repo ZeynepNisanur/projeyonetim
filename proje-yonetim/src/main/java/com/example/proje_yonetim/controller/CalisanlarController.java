@@ -15,7 +15,6 @@ import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/calisanlar")
-@CrossOrigin(origins = "*")
 public class CalisanlarController {
 
     private final CalisanlarService calisanlarService;

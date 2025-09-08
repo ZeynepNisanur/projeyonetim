@@ -19,6 +19,10 @@ public class Projeler {
     @Enumerated(EnumType.STRING)
     private Durum durum;
 
+    @ManyToMany
+    @JoinTable(name = "proje_calisanlar", joinColumns = @JoinColumn(name = "proje_id"), inverseJoinColumns = @JoinColumn(name = "calisan_id"))
+    private Set<Calisanlar> calisanlar = new HashSet<>();
+
     public Projeler() {
     }
 
@@ -80,10 +84,12 @@ public class Projeler {
         this.durum = durum;
     }
 
-    @ManyToMany
-    @JoinTable(name = "proje_calisanlar", joinColumns = @JoinColumn(name = "proje_id"), inverseJoinColumns = @JoinColumn(name = "calisan_id"))
-    private Set<Calisanlar> calisanlar = new HashSet<>();
+    // Çalışanlar için eksik olan setter metodu eklendi
+    public void setCalisanlar(Set<Calisanlar> calisanlar) {
+        this.calisanlar = calisanlar;
+    }
 
+    // Zaten mevcut olan getter metodu
     public Set<Calisanlar> getCalisanlar() {
         return calisanlar;
     }

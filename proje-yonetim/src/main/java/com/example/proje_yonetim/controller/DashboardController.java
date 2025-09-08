@@ -1,11 +1,14 @@
 package com.example.proje_yonetim.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +38,9 @@ public class DashboardController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private com.example.proje_yonetim.service.UserService userService;
 
     @GetMapping
     public ResponseEntity<?> getDashboard(Authentication authentication) {
@@ -345,6 +351,85 @@ public class DashboardController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("İstatistikler yüklenirken hata: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/user-projeler")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<?> getUserProjelerOzet(Authentication authentication) {
+        try {
+            String username = authentication.getName();
+            System.out.println("User projeler özeti istendi: " + username);
+
+            // Kullanıcının çalışan kaydını bul
+            Optional<User> userOpt = userService.findByUsername(username);
+            if (!userOpt.isPresent()) {
+                Map<String, Object> emptyResponse = new HashMap<>();
+                emptyResponse.put("toplamProjeSayisi", 0);
+                emptyResponse.put("projeler", new ArrayList<>());
+                emptyResponse.put("durumDagilimi", new HashMap<>());
+                return ResponseEntity.ok(emptyResponse);
+            }
+
+            User user = userOpt.get();
+            Optional<Calisanlar> calisanOpt = calisanlarService.findByUserId(user.getId());
+
+            if (!calisanOpt.isPresent()) {
+                Map<String, Object> emptyResponse = new HashMap<>();
+                emptyResponse.put("toplamProjeSayisi", 0);
+                emptyResponse.put("projeler", new ArrayList<>());
+                emptyResponse.put("durumDagilimi", new HashMap<>());
+                emptyResponse.put("message", "Çalışan kaydı bulunamadı");
+                return ResponseEntity.ok(emptyResponse);
+            }
+
+            Calisanlar calisan = calisanOpt.get();
+
+            // Çalışanın projelerini getir
+            List<Projeler> userProjects = new ArrayList<>();
+            if (calisan.getProjeler() != null) {
+                userProjects.addAll(calisan.getProjeler());
+            }
+
+            // Durum dağılımını hesapla
+            Map<String, Integer> durumDagilimi = new HashMap<>();
+            for (Projeler proje : userProjects) {
+                String durum = "BELIRTILMEMIS";
+                if (proje.getDurum() != null) {
+                    durum = proje.getDurum().toString();
+                }
+                durumDagilimi.put(durum, durumDagilimi.getOrDefault(durum, 0) + 1);
+            }
+
+            // En son eklenen projeleri al (maksimum 5)
+            List<Projeler> sonProjeler = userProjects.stream()
+                    .sorted((p1, p2) -> {
+                        // ID'ye göre sırala (yeni ID'ler daha büyük olacak)
+                        return Long.compare(p2.getId(), p1.getId());
+                    })
+                    .limit(5)
+                    .collect(Collectors.toList());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("toplamProjeSayisi", userProjects.size());
+            response.put("projeler", sonProjeler); // Sadece son 5 projeyi gönder
+            response.put("durumDagilimi", durumDagilimi);
+            response.put("calisanAdi", calisan.getAd() + " " + calisan.getSoyad());
+            response.put("message", "Kullanıcı projeler özeti başarıyla getirildi");
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            System.err.println("User projeler özeti hatası: " + e.getMessage());
+            e.printStackTrace();
+
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("toplamProjeSayisi", 0);
+            errorResponse.put("projeler", new ArrayList<>());
+            errorResponse.put("durumDagilimi", new HashMap<>());
+            errorResponse.put("error", "Projeler getirilemedi: " + e.getMessage());
+
+            return ResponseEntity.ok(errorResponse);
         }
     }
 }

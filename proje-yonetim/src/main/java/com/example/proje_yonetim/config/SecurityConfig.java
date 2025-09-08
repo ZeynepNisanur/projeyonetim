@@ -3,7 +3,6 @@ package com.example.proje_yonetim.config;
 import org.springframework.security.config.Customizer;
 import java.util.List;
 
-//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,7 +24,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.example.proje_yonetim.security.JwtAuthenticationFilter;
-//import com.example.proje_yonetim.service.CustomUserDetailsService;
 
 @Configuration
 @EnableWebSecurity

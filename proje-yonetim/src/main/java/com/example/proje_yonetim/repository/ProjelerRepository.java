@@ -9,4 +9,7 @@ import java.util.List;
 
 public interface ProjelerRepository extends JpaRepository<Projeler, Long> {
     List<Projeler> findByDurum(Durum durum);
+
+    List<Projeler> findByBaslikContainingIgnoreCase(String baslik);
+
 }

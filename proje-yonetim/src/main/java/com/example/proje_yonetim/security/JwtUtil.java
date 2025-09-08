@@ -33,17 +33,6 @@ public class JwtUtil {
         return createToken(claims, userDetails.getUsername());
     }
 
-    /*
-     * public String extractUseradi(String token) {
-     * return Jwts.parserBuilder()
-     * .setSigningKey(getSigningKey())
-     * .build()
-     * .parseClaimsJws(token)
-     * .getBody()
-     * .getSubject();
-     * }
-     */
-
     public String extractUseradi(String token) {
         try {
             return extractAllClaims(token).getSubject();
@@ -52,14 +41,6 @@ public class JwtUtil {
             return null;
         }
     }
-
-    /*
-     * public boolean validateToken(String token, UserDetails userDetails) {
-     * final String extractedUsername = extractUseradi(token);
-     * return (extractedUsername.equals(userDetails.getUsername()) &&
-     * !isTokenExpired(token));
-     * }
-     */
 
     public boolean validateToken(String token, UserDetails userDetails) {
         try {
@@ -76,17 +57,6 @@ public class JwtUtil {
         final Date expiration = extractExpiration(token);
         return expiration.before(new Date());
     }
-
-    /*
-     * private Claims extractAllClaims(String token) {
-     * return Jwts
-     * .parserBuilder()
-     * .setSigningKey(getSigningKey())
-     * .build()
-     * .parseClaimsJws(token)
-     * .getBody();
-     * }
-     */
 
     private Claims extractAllClaims(String token) {
         try {
